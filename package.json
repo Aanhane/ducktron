@@ -1,6 +1,6 @@
 {
   "name": "ducktron",
-  "version": "0.9.1",
+  "version": "0.9.2",
   "author": "Rob <robaanhane@gmail.com>",
   "description": "An electron-vue project",
   "license": "GPL-3.0",
