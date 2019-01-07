@@ -1,77 +1,77 @@
 <template>
-    <main>
-      <form-field label="Domains">
-        <el-input
-          placeholder="Enter a domain"
-          v-model="newDomain"
-          @focus="domainInputHasFocus = true"
-          @blur="domainInputHasFocus = false"
-        >
-          <template slot="prepend">http://</template>
-          <template slot="append">.duckdns.org</template>
-        </el-input>
-        <el-tag
-          class="domain-list"
-          v-for="d in config.domains"
-          :key="d"
-          closable
-          @close="removeDomain(d)"
-        >
-          <span
-            @click="open(`http://${d}.duckdns.org`)"
-            class="tag-link"
-          ><strong>{{ d }}</strong>.duckdns.org</span>
-        </el-tag>
-        <template slot="actions">
-          <transition name="pop">
-            <el-button
-              :type="isNewDomainValid ? 'success' : ''"
-              size="mini"
-              icon="el-icon-plus"
-              class="btn-add-domain"
-              circle
-              @click="addNewDomain()"
-              v-show="canAddDomain"
-            ></el-button>
-          </transition>
-        </template>
-      </form-field>
-      <form-field label="Token">
-        <el-input
-          placeholder="Your token"
-          v-model="config.token"
-        >
-        </el-input>
-      </form-field>
-      <form-field label="Refresh interval">
-        <el-select
-          v-model="config.refreshInterval"
-          placeholder="Select"
-        >
-          <el-option
-            v-for="item in availableIntervals"
-            :key="item.value"
-            :label="item.text"
-            :value="item.value"
-          >
-          </el-option>
-        </el-select>
-      </form-field>
-      <form-field
-        label="Smart update"
-        description="Only do an update when the external IP is changed (uses canhazip)."
+  <main>
+    <form-field label="Domains">
+      <el-input
+        placeholder="Enter a domain"
+        v-model="newDomain"
+        @focus="domainInputHasFocus = true"
+        @blur="domainInputHasFocus = false"
       >
-          <el-checkbox v-model="config.smartUpdate"></el-checkbox>
-      </form-field>
-      <form-field label="Launch on startup">
-          <el-checkbox v-model="config.launchOnStartup"></el-checkbox>
-      </form-field>
-    </main>
+        <template slot="prepend">http://</template>
+        <template slot="append">.duckdns.org</template>
+      </el-input>
+      <el-tag
+        class="domain-list"
+        v-for="d in config.domains"
+        :key="d"
+        closable
+        @close="removeDomain(d)"
+      >
+        <span
+          @click="open(`http://${d}.duckdns.org`)"
+          class="tag-link"
+        ><strong>{{ d }}</strong>.duckdns.org</span>
+      </el-tag>
+      <template slot="actions">
+        <transition name="pop">
+          <el-button
+            :type="isNewDomainValid ? 'success' : ''"
+            size="mini"
+            icon="el-icon-plus"
+            class="btn-add-domain"
+            circle
+            @click="addNewDomain()"
+            v-show="canAddDomain"
+          ></el-button>
+        </transition>
+      </template>
+    </form-field>
+    <form-field label="Token">
+      <el-input
+        placeholder="Your token"
+        v-model="config.token"
+      >
+      </el-input>
+    </form-field>
+    <form-field label="Refresh interval">
+      <el-select
+        v-model="config.refreshInterval"
+        placeholder="Select"
+      >
+        <el-option
+          v-for="item in availableIntervals"
+          :key="item.value"
+          :label="item.text"
+          :value="item.value"
+        >
+        </el-option>
+      </el-select>
+    </form-field>
+    <form-field
+      label="Smart update"
+      description="Only do an update when the external IP is changed (uses canhazip)."
+    >
+      <el-checkbox v-model="config.smartUpdate"></el-checkbox>
+    </form-field>
+    <form-field label="Launch on startup">
+      <el-checkbox v-model="config.launchOnStartup"></el-checkbox>
+    </form-field>
+  </main>
 </template>
 
 <script>
 import { mapState, mapActions } from "vuex";
-import { ipcRenderer } from "electron";
+import { ipcRenderer, clipboard } from "electron";
 import FormField from './FormField';
 import _ from 'lodash';
 
@@ -79,6 +79,9 @@ const SAVE_CONFIG = 'save-config';
 const GET_CONFIG = 'get-config';
 const DISABLE_AUTOLAUNCH = 'disable-autolaunch';
 const ENABLE_AUTOLAUNCH = 'enable-autolaunch';
+const keyCodes = {
+  V: 86,
+}
 
 export default {
   name: "landing-page",
@@ -114,6 +117,12 @@ export default {
         window.close();
       } else if ((event.key === 'Enter' || event.keyCode === 13) && this.domainInputHasFocus && this.canAddDomain) {
         this.addNewDomain();
+      } else if (event.ctrlKey || event.metaKey) { 
+        if (event.which == keyCodes.V) {
+          document.activeElement.value += clipboard.readText()
+          document.activeElement.dispatchEvent(new Event('input'))
+          toReturn = false
+        }
       }
     });
   },
@@ -182,11 +191,9 @@ export default {
 </script>
 
 <style>
-
 main {
   margin: 20px;
 }
-
 
 h4 {
   margin-bottom: 25px;

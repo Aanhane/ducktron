@@ -3,7 +3,7 @@
   "version": "0.9.1",
   "author": "Rob <robaanhane@gmail.com>",
   "description": "An electron-vue project",
-  "license": "GPL",
+  "license": "GPL-3.0",
   "main": "./dist/electron/main.js",
   "scripts": {
     "build": "node .electron-vue/build.js && electron-builder",
@@ -20,7 +20,7 @@
     "postinstall": ""
   },
   "build": {
-    "productName": "ducktron",
+    "productName": "Ducktron",
     "appId": "com.aanhane.ducktron",
     "directories": {
       "output": "build"
@@ -61,6 +61,7 @@
     "lodash": "^4.17.11",
     "moment": "^2.22.2",
     "nconf": "^0.10.0",
+    "path": "^0.12.7",
     "public-ip": "^2.4.0",
     "vue": "^2.5.16",
     "vue-electron": "^1.0.6",

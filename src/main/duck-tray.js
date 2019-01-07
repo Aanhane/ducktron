@@ -1,25 +1,26 @@
-const electron = require("electron");
-const { app, Menu, Tray } = electron;
-const platform = require("electron-platform");
+const electron= require('electron');
+const { app, Menu, Tray, nativeImage } = electron;
+const platform = require('electron-platform');
 const dnsUpdater = require('./dns-updater');
-const moment = require("moment");
+const moment = require('moment');
+const path = require('path');
 
 let tray;
 let mainWindow;
 let trayMenu;
 
-function init (window) {
+function init(window) {
   mainWindow = window;
 
   tray = createTray();
   trayMenu = createTrayMenu();
   tray.setContextMenu(trayMenu);
-  console.log('binding click..')
-  tray.on("click", onTrayClick);
-  tray.on("right-click", onTrayClick);
+  console.log('binding click..');
+  tray.on('click', onTrayClick);
+  tray.on('right-click', onTrayClick);
   alignWindowToTray(window);
 
-  trayMenu.on("menu-will-show", updateTrayMenu);
+  trayMenu.on('menu-will-show', updateTrayMenu);
 
   setInterval(() => {
     updateTooltip();
@@ -28,30 +29,33 @@ function init (window) {
   return tray;
 }
 
-function updateTrayMenu () {
+function updateTrayMenu() {
   trayMenu = createTrayMenu();
   tray.setContextMenu(trayMenu);
   setTimeout(() => {
     tray.popUpContextMenu(trayMenu);
-    trayMenu.on("menu-will-show", updateTrayMenu);
+    trayMenu.on('menu-will-show', updateTrayMenu);
   }, 1);
 }
 
-function createTrayMenu () {
+function createTrayMenu() {
   let minutesBeforeUpdate = dnsUpdater.getRemainingMinutes();
-  let remainingTimeLabel = minutesBeforeUpdate > 0 ? `Next refresh ${moment().to(moment().add(Math.ceil(minutesBeforeUpdate), 'minutes'))}` : `Starting updater...`;
+  let remainingTimeLabel =
+    minutesBeforeUpdate > 0
+      ? `Next refresh ${moment().to(moment().add(Math.ceil(minutesBeforeUpdate), 'minutes'))}`
+      : `Starting updater...`;
   let menu = Menu.buildFromTemplate([
-    { id: 'refreshTime', label: remainingTimeLabel, type: "normal", enabled: false },
-    { type: "separator" },
-    { label: "Open settings", type: "normal", click: onSettingsClick },
-    { label: "Refresh now", type: "normal", click: dnsUpdater.update },
-    { type: "separator" },
-    { label: "Quit", type: "normal", click: onQuitClick }
+    { id: 'refreshTime', label: remainingTimeLabel, type: 'normal', enabled: false },
+    { type: 'separator' },
+    { label: 'Open settings', type: 'normal', click: onSettingsClick },
+    { label: 'Refresh now', type: 'normal', click: dnsUpdater.update },
+    { type: 'separator' },
+    { label: 'Quit', type: 'normal', click: onQuitClick }
   ]);
   return menu;
 }
 
-function alignWindowToTray (window) {
+function alignWindowToTray(window) {
   const screenElectron = electron.screen;
   let ms = screenElectron.getPrimaryDisplay();
   const { width, height } = window.getBounds();
@@ -60,44 +64,48 @@ function alignWindowToTray (window) {
   let newY = ms.workArea.y != 0 ? ms.workArea.y : ms.workArea.height - height - 25;
 
   window.setBounds({
-    x: newX,
-    y: newY,
+    x: Math.floor(newX),
+    y: Math.floor(newY),
     width,
     height
   });
 }
 
-function createTray () {
-  var imageFolder = __dirname + "/assets/images/";
+function createTray() {
+  var imageFolder = path.join(__static + '/assets/images/');
   let trayImage;
   if (platform.isDarwin) {
-    trayImage = imageFolder + "maciconTemplate.png";
+    trayImage = path.join(imageFolder + 'maciconTemplate.png');
   } else if (platform.isWin32) {
-    trayImage = imageFolder + "favicon.ico";
+    trayImage = path.join(imageFolder + 'favicon.ico');
   }
-  let newTray = new Tray(trayImage);
+  let trayIcon = nativeImage.createFromPath(trayImage);
+  let newTray = new Tray(trayIcon);
 
-  if (platform == "darwin") {
-    appIcon.setPressedImage(imageFolder + "macicon-pressedTemplate.png");
+  if (platform == 'darwin') {
+    appIcon.setPressedImage(path.join(imageFolder + 'macicon-pressedTemplate.png'));
   }
   return newTray;
 }
 
-function onTrayClick () {
+function onTrayClick() {
   mainWindow.isVisible() ? mainWindow.hide() : mainWindow.show();
 }
 
-function onSettingsClick () {
+function onSettingsClick() {
   mainWindow.show();
 }
 
-function updateTooltip () {
+function updateTooltip() {
   let minutesBeforeUpdate = dnsUpdater.getRemainingMinutes();
-  let remainingTimeLabel = minutesBeforeUpdate > 0 ? `Next refresh ${moment().to(moment().add(Math.ceil(minutesBeforeUpdate), 'minutes'))}` : `Starting updater...`;
+  let remainingTimeLabel =
+    minutesBeforeUpdate > 0
+      ? `Next refresh ${moment().to(moment().add(Math.ceil(minutesBeforeUpdate), 'minutes'))}`
+      : `Starting updater...`;
   tray.setToolTip(remainingTimeLabel);
 }
 
-function onQuitClick () {
+function onQuitClick() {
   app.exit();
 }
 

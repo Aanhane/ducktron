@@ -4,6 +4,7 @@ const dnsUpdater = require('./dns-updater');
 const platform = require('electron-platform');
 const autoLauncher = require('./auto-launcher');
 const configuration = require('./configuration');
+const path = require('path');
 const gd = require('./global-dir');
 const app = electron.app;
 const BrowserWindow = electron.BrowserWindow;
@@ -22,15 +23,17 @@ function createWindow() {
   if (platform.isDarwin) {
     app.dock.hide();
   }
+
+  let isDev = process.env.NODE_ENV === 'development';
   mainWindow = new BrowserWindow({
-    height: process.env.NODE_ENV === 'development' ? 900 : 550,
-    width: process.env.NODE_ENV === 'development' ? 900 : 650,
+    height: isDev ? 900 : 550,
+    width: isDev ? 900 : 650,
     frame: false,
-    resizable: process.env.NODE_ENV === 'development',
-    show: false,
+    resizable: isDev,
+    show: isDev,
     skipTaskbar: true,
     webPreferences: { backgroundThrottling: false },
-    icon: __dirname + '/assets/images/macicon.png'
+    icon: path.join(__static + '/assets/images/macicon.png')
   });
 
   mainWindow.loadURL(winURL);

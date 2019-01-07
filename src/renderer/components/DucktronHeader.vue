@@ -12,8 +12,10 @@
 
 <script>
 export default {
-  open (link) {
-    this.$electron.shell.openExternal(link);
+  methods: {
+    open (link) {
+      this.$electron.shell.openExternal(link);
+    }
   }
 }
 </script>
