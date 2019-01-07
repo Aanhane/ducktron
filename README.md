@@ -1,3 +1,6 @@
+[![Build Status](https://travis-ci.org/Aanhane/ducktron.svg?branch=master)](https://travis-ci.org/Aanhane/ducktron)
+[![Build status](https://ci.appveyor.com/api/projects/status/6kd1ecoamsttj7bs?svg=true)](https://ci.appveyor.com/project/Aanhane/ducktron)
+
 # Ducktron
 
 A cross-platform update client for www.duckdns.org, based on Electron and Vue.
